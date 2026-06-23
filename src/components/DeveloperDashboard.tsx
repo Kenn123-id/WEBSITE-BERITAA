@@ -13,7 +13,8 @@ import {
   Info, 
   Activity,
   Check,
-  X
+  X,
+  Sparkles
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -58,14 +59,8 @@ export default function DeveloperDashboard({
   setAutoPilotStatus,
   onTriggerManualAutoNews
 }: DeveloperDashboardProps) {
-  const [activeTab, setActiveTab] = useState<'console' | 'approval' | 'database' | 'system'>(isApproved ? 'console' : 'system');
+  const [activeTab, setActiveTab] = useState<'console' | 'approval' | 'database' | 'system'>('console');
   const [approvalSubTab, setApprovalSubTab] = useState<'news' | 'staff'>('news');
-
-  useEffect(() => {
-    if (!isApproved) {
-      setActiveTab('system');
-    }
-  }, [isApproved]);
   
   // Custom Log State
   const [logLevel, setLogLevel] = useState<'info' | 'warning' | 'error'>('info');
@@ -119,9 +114,7 @@ export default function DeveloperDashboard({
         <div className="flex items-center gap-1.5 p-1 bg-gray-105 dark:bg-zinc-850 rounded-xl self-start" id="dev-subtabs">
           {(() => {
             const pendingCount = articles.filter((a) => a.status === 'pending').length;
-            const availableTabs = isApproved
-              ? (['console', 'approval', 'database', 'system'] as const)
-              : (['system'] as const);
+            const availableTabs = (['console', 'approval', 'database', 'system'] as const);
             
             return availableTabs.map((tab) => {
               const labels = {
@@ -148,33 +141,6 @@ export default function DeveloperDashboard({
           })()}
         </div>
       </div>
-
-      {/* ⚠️ NOTIFIKASI AKTIVASI AKUN PENGEMBANG / PERSETUJUAN */}
-      <AnimatePresence>
-        {!isApproved && (
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            className="p-5 bg-amber-50 dark:bg-amber-955/20 border border-amber-200 dark:border-amber-900/65 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm"
-          >
-            <div className="space-y-1">
-              <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-extrabold tracking-wider bg-amber-100 dark:bg-amber-950 text-amber-805 dark:text-amber-400 uppercase animate-pulse">
-                Menunggu ACC Developer Utama
-              </span>
-              <h4 className="text-sm font-bold text-amber-900 dark:text-amber-300">
-                Status Akun Developer (Pengembang) Belum Aktif
-              </h4>
-              <p className="text-xs text-amber-700 dark:text-amber-405 leading-relaxed">
-                Akun developer Anda <strong>{developerName}</strong> sedang ditinjau. Anda dapat melihat tab Status Enjin UI, namun akses ke Terminal Logs, Persetujuan Berita, Skema lokal, dan pengelolaan akun staf dikunci hingga akun Anda disetujui secara resmi oleh Developer Utama.
-              </p>
-            </div>
-            <div className="text-[10px] font-bold text-amber-600 dark:text-amber-450 shrink-0 bg-amber-100/50 dark:bg-amber-950/30 px-2.5 py-1.5 rounded-lg border border-amber-200/50 dark:border-amber-900/35">
-              Silakan cek secara berkala di web ini
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       {/* Grid of System Metrics */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4" id="dev-metrics-deck">
@@ -625,39 +591,117 @@ interface Comment {
             </div>
           </div>
 
-          {/* AI AUTOMATIC JOURNALIST DEV SPEC CARD */}
-          <div className="p-4 bg-indigo-50/50 dark:bg-indigo-950/20 border border-indigo-100/40 dark:border-indigo-950/50 rounded-xl space-y-3 mt-4 text-xs">
-            <h4 className="font-bold text-gray-800 dark:text-white flex items-center justify-between">
-              <span className="flex items-center gap-1.5">
-                <Settings className="w-4 h-4 text-indigo-500 animate-pulse" />
-                <span>Enjin AI Autopilot Info (Sistem Utama)</span>
-              </span>
-              <span className={`px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider ${
-                autoPilotEnabled ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-400' : 'bg-gray-100 text-gray-500 dark:bg-zinc-800 dark:text-zinc-450'
-              }`}>
-                {autoPilotEnabled ? '● BERJALAN' : '○ MATI'}
-              </span>
-            </h4>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-gray-500 dark:text-zinc-400 font-semibold" id="dev-autopilot-spec-list">
-              <div className="bg-white dark:bg-zinc-900 border border-indigo-50 dark:border-zinc-800/60 p-3 rounded-lg">
-                <span className="block text-[10px] text-gray-400 uppercase tracking-widest font-bold">FREKUENSI TICK</span>
-                <span className="text-xs text-gray-800 dark:text-white font-bold block mt-1">{autoPilotInterval} detik per siklus</span>
+          {/* AI AUTOMATIC JOURNALIST DEV SPEC CARD - SEKARANG MENJADI KONTROL PENUH DI SINI */}
+          <div className="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-zinc-900/40 dark:to-zinc-950/40 border border-indigo-100/60 dark:border-zinc-805/80 rounded-2xl p-6 shadow-xs space-y-4 mt-6" id="ai-journalist-panel">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-indigo-100/40 dark:border-zinc-800/50 pb-4">
+              <div className="flex items-center gap-2.5">
+                <div className="p-2 bg-gradient-to-tr from-indigo-500 to-purple-500 text-white rounded-xl">
+                  <Sparkles className="w-5 h-5 animate-pulse" />
+                </div>
+                <div>
+                  <h3 className="font-extrabold text-gray-900 dark:text-white flex items-center gap-2 text-sm sm:text-base">
+                    <span>Pilot Otomatis Penulisan AI (Robot Jurnalis)</span>
+                    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                      autoPilotEnabled 
+                        ? 'bg-emerald-100 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 animate-pulse' 
+                        : 'bg-gray-100 dark:bg-zinc-800 text-gray-500 dark:text-zinc-400'
+                    }`}>
+                      {autoPilotEnabled ? '● Aktif' : '○ Nonaktif'}
+                    </span>
+                  </h3>
+                  <p className="text-xs text-gray-500 dark:text-zinc-450 mt-0.5">
+                    Izinkan agen AI menulis, merilis, dan memvisualisasikan berita secara berkala tanpa input manusia.
+                  </p>
+                </div>
               </div>
-              <div className="bg-white dark:bg-zinc-900 border border-indigo-50 dark:border-zinc-800/60 p-3 rounded-lg">
-                <span className="block text-[10px] text-gray-400 uppercase tracking-widest font-bold">ALUR PERSIDANGAN PERS</span>
-                <span className="text-xs text-gray-800 dark:text-white font-bold block mt-1">
-                  {autoPilotStatus === 'approved' ? 'TAYANG LANGSUNG (ACC)' : 'MODERASI DRAFT (PENDING)'}
-                </span>
-              </div>
-              <div className="bg-white dark:bg-zinc-900 border border-indigo-50 dark:border-zinc-800/60 p-3 rounded-lg">
-                <span className="block text-[10px] text-gray-400 uppercase tracking-widest font-bold">AKSI CEPAT</span>
+              <div className="flex items-center gap-2 shrink-0">
                 <button
-                  id="dev-btn-trigger-ai"
-                  onClick={() => onTriggerManualAutoNews('Semua', 'approved')}
-                  className="mt-1 flex items-center justify-center gap-1 px-3 py-1 bg-indigo-600 hover:bg-indigo-700 text-white text-[10px] font-bold rounded-lg transition-all cursor-pointer"
+                  id="btn-trigger-ai-news"
+                  onClick={() => onTriggerManualAutoNews('Semua', autoPilotStatus)}
+                  className="px-3.5 py-1.5 bg-indigo-650 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl shadow-xs transition-all flex items-center gap-1.5 cursor-pointer dark:bg-indigo-600 dark:hover:bg-indigo-550"
                 >
-                  Paksa Rilis AI (ACC)
+                  <RefreshCw className="w-3.5 h-3.5" />
+                  <span>Hasilkan 1 Berita Sekarang</span>
                 </button>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5 pt-1">
+              {/* 1. Toggle Autopilot switch */}
+              <div className="bg-white/80 dark:bg-zinc-900/60 p-4 rounded-xl border border-gray-100/65 dark:border-zinc-900/80 flex flex-col justify-between space-y-3">
+                <div>
+                  <h4 className="text-xs font-bold text-gray-700 dark:text-zinc-350 uppercase tracking-wide">Status Kontrol</h4>
+                  <p className="text-[11px] text-gray-400 mt-0.5">Toggle untuk menyalakan robot penulis otomatis latar belakang.</p>
+                </div>
+                <div className="flex items-center gap-3">
+                  <button
+                    id="toggle-autopilot-btn"
+                    onClick={() => setAutoPilotEnabled(!autoPilotEnabled)}
+                    className={`w-full py-2 px-4 rounded-lg font-bold text-xs transition-all cursor-pointer text-center ${
+                      autoPilotEnabled
+                        ? 'bg-emerald-100 hover:bg-emerald-200 text-emerald-850 dark:bg-emerald-950/50 dark:text-emerald-400 dark:hover:bg-emerald-900'
+                        : 'bg-gray-100 hover:bg-gray-200 text-gray-700 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-750'
+                    }`}
+                  >
+                    {autoPilotEnabled ? 'Matikan Autopilot' : 'Aktifkan Autopilot'}
+                  </button>
+                </div>
+              </div>
+
+              {/* 2. Interval Rate selector */}
+              <div className="bg-white/80 dark:bg-zinc-900/60 p-4 rounded-xl border border-gray-100/65 dark:border-zinc-900/80 flex flex-col justify-between space-y-3">
+                <div>
+                  <h4 className="text-xs font-bold text-gray-700 dark:text-zinc-350 uppercase tracking-wide">Frekuensi Rilis</h4>
+                  <p className="text-[11px] text-gray-400 mt-0.5">Durasi interval per rilis otomatis artikel berita baru.</p>
+                </div>
+                <div className="flex flex-wrap gap-1.5">
+                  {[15, 30, 60, 180].map((sec) => (
+                    <button
+                      key={sec}
+                      id={`interval-btn-${sec}`}
+                      onClick={() => setAutoPilotInterval(sec)}
+                      className={`px-2.5 py-1 text-[10px] font-bold rounded-md transition-all cursor-pointer ${
+                        autoPilotInterval === sec
+                          ? 'bg-indigo-600 text-white shadow-xs'
+                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-750'
+                      }`}
+                    >
+                      {sec < 60 ? `${sec} Detik` : `${sec / 60} Menit`}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* 3. Status/Policy selector */}
+              <div className="bg-white/80 dark:bg-zinc-900/60 p-4 rounded-xl border border-gray-100/65 dark:border-zinc-900/80 flex flex-col justify-between space-y-3">
+                <div>
+                  <h4 className="text-xs font-bold text-gray-700 dark:text-zinc-350 uppercase tracking-wide">Kebijakan Editorial</h4>
+                  <p className="text-[11px] text-gray-400 mt-0.5">Alur persetujuan saat berita diterbitkan oleh robot.</p>
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    id="policy-approved-btn"
+                    onClick={() => setAutoPilotStatus('approved')}
+                    className={`flex-1 py-1.5 px-3 rounded-md font-bold text-[10px] text-center transition-all cursor-pointer ${
+                      autoPilotStatus === 'approved'
+                        ? 'bg-emerald-600 text-white shadow-xs'
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-750'
+                    }`}
+                  >
+                    Tayang Kelihatan
+                  </button>
+                  <button
+                    id="policy-pending-btn"
+                    onClick={() => setAutoPilotStatus('pending')}
+                    className={`flex-1 py-1.5 px-3 rounded-md font-bold text-[10px] text-center transition-all cursor-pointer ${
+                      autoPilotStatus === 'pending'
+                        ? 'bg-amber-500 text-white shadow-xs'
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-750'
+                    }`}
+                  >
+                    Pending Draft
+                  </button>
+                </div>
               </div>
             </div>
           </div>
